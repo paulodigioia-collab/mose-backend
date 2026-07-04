@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MOSE.ART · Backend</title>
+<style>
+  :root{
+    --bg:#0a0707; --panel:#141010; --line:#2a2020; --ink:#f4efe9; --dim:#a89c92;
+    --gold:#EFC07B; --red:#A50000; --green:#7EA46B;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;line-height:1.45}
+  a{color:var(--gold)}
+  .wrap{max-width:920px;margin:0 auto;padding:26px 20px 80px}
+  header{text-align:center;padding:8px 0 6px}
+  .brand{font-weight:800;letter-spacing:.22em;font-size:14px}
+  .brand b{color:var(--gold)}
+  .sub{font-size:11px;color:var(--dim);letter-spacing:.16em;text-transform:uppercase;margin-top:4px}
+  /* clock */
+  .clockcard{margin:22px 0 8px;background:linear-gradient(160deg,#171010,#0d0909);
+    border:1px solid var(--line);border-radius:18px;padding:22px 18px;text-align:center;position:relative;overflow:hidden}
+  .clockcard::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 50% -10%,rgba(239,192,123,.10),transparent 70%);pointer-events:none}
+  .cl-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+  .clock{display:flex;justify-content:center;gap:14px;margin:12px 0 6px}
+  .unit{min-width:78px}
+  .unit b{display:block;font-size:44px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--gold)}
+  .unit span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .cl-date{font-size:12.5px;color:var(--dim);margin-top:6px}
+  .cl-date em{color:#c9a15a;font-style:normal}
+  .today{margin:14px 0 0;padding:11px 14px;background:#191313;border:1px solid var(--line);border-radius:12px;font-size:13px}
+  .today b{color:var(--gold)}
+  /* progress */
+  .progress{margin:20px 0 6px;display:flex;align-items:center;gap:12px}
+  .bar{flex:1;height:9px;background:#241c1c;border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#b8863f);width:0}
+  .pct{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:120px;text-align:right}
+  /* phases */
+  .phase{margin-top:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+  .ph-head{display:flex;align-items:center;gap:10px;padding:12px 15px;cursor:pointer;user-select:none}
+  .ph-head .no{width:26px;height:26px;border-radius:8px;background:#241c1c;color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+  .ph-head h3{margin:0;font-size:14px;flex:1}
+  .ph-head h3 small{display:block;font-size:11px;color:var(--dim);font-weight:400;letter-spacing:.02em}
+  .ph-head .cnt{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .gate{font-size:10px;color:var(--red);border:1px solid #5a1a1a;background:#2a0f0f;border-radius:5px;padding:2px 6px;letter-spacing:.08em}
+  .items{padding:2px 15px 12px 15px;display:none}
+  .items.open{display:block}
+  .item{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid #201818}
+  .item:first-child{border-top:0}
+  .item input{margin-top:3px;width:17px;height:17px;accent-color:var(--gold);flex-shrink:0;cursor:pointer}
+  .item label{font-size:13.5px;cursor:pointer}
+  .item.done label{color:#6f6960;text-decoration:line-through}
+  .tag{font-size:9.5px;letter-spacing:.06em;padding:1px 6px;border-radius:5px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+  .t-lock{background:#2a0f0f;color:#f0a9a9;border:1px solid #5a1a1a}
+  .t-go{background:#12210f;color:#a9d29a;border:1px solid #2f4a26}
+  .t-idea{background:#1c1622;color:#c9a9dd;border:1px solid #4a2f5a}
+  h2.sec{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:30px 0 8px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 15px}
+  .card li{margin:5px 0;font-size:13.5px}
+  .foot{margin-top:34px;font-size:11px;color:#6f6960;text-align:center;line-height:1.7}
+  .reset{background:none;border:1px solid var(--line);color:var(--dim);border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>MOSE.ART</b> · BACKEND</div>
+    <div class="sub">Personal ops board · you + Johnny · not for investors</div>
+  </header>
+
+  <div class="clockcard">
+    <div class="cl-label">Time until the first night</div>
+    <div class="clock" id="clock">
+      <div class="unit"><b id="d">–</b><span>days</span></div>
+      <div class="unit"><b id="h">–</b><span>hours</span></div>
+      <div class="unit"><b id="m">–</b><span>min</span></div>
+      <div class="unit"><b id="s">–</b><span>sec</span></div>
+    </div>
+    <div class="cl-date">Target: <em id="evlabel">Fri 4 September 2026 · 19:30 · Amsterdam</em> <span style="opacity:.6">(working date — confirm)</span></div>
+    <div class="today" id="today">…</div>
+  </div>
+
+  <div class="progress">
+    <div class="bar"><i id="barfill"></i></div>
+    <div class="pct" id="pct">0 / 0 done</div>
+  </div>
+
+  <div id="phases"></div>
+
+  <h2 class="sec">Decisions needed (Johnny) — blocking</h2>
+  <div class="card"><ul id="decisions"></ul></div>
+
+  <h2 class="sec">Content owed (you / Johnny)</h2>
+  <div class="card"><ul id="content"></ul></div>
+
+  <div class="foot">
+    Live board · checkmarks save on this device. Legend:
+    <span class="tag t-lock">LOCKED</span> must happen ·
+    <span class="tag t-go">GOING</span> planned ·
+    <span class="tag t-idea">IDEA</span> optional.<br>
+    Built as the todo board for the whole picture. Another chat can later deploy this to a private route + add "which tables filled by which brand/name".<br>
+    <button class="reset" id="reset">reset all checkmarks</button>
+  </div>
+</div>
+
+<script>
+// ---- EVENT DATE (working / canonical — edit one line) ----
+const EVENT = new Date('2026-09-04T19:30:00+02:00');
+document.getElementById('evlabel').textContent = 'Fri 4 September 2026 · 19:30 · Amsterdam';
+
+// ---- the master todos (big items only; grouped by phase) ----
+const PHASES = [
+ {n:0, title:"Build the system", sub:"gate — nothing sells until this is live", gate:true, items:[
+   ["p0a","Reservation/table map live — clickable tables, price per person, reserved state","lock"],
+   ["p0b","Payment UPFRONT only (deposit → bottle/champagne credit)","lock"],
+   ["p0c","Nominate-2 built into the buy flow, shown BEFORE payment","lock"],
+   ["p0d","CRM captures every buyer (name + email + phone + tier + invited-by + code)","lock"],
+   ["p0e","Separate club-ticket link, unique QR per ticket","lock"],
+   ["p0f","Countdown timers wired (project + per milestone)","lock"],
+   ["p0g","Floor plan + table numbers finalized (other chat)","lock"],
+ ]},
+ {n:1, title:"Sell to the inner circle", sub:"~600 close friends · ~300 Johnny knows personally", items:[
+   ["p1a","Send the easy reserve/order link to the ~300 Johnny knows","lock"],
+   ["p1b","They get first pick of tables/seats","go"],
+   ["p1c","Whole-night-VIP buyers unlock the nominate-2 perk","go"],
+   ["p1d","Capture who reserved + who pre-ordered drinks","lock"],
+ ]},
+ {n:2, title:"Sell to the wider circle", sub:"goal: hit 120 diners", items:[
+   ["p2a","Invite ~500 more (ambassadors / hotels / referrals) to net 120 diners","go"],
+   ["p2b","Tables keep filling by tier / price","go"],
+   ["p2c","Track invited-by (who brought whom) across tiers","lock"],
+ ]},
+ {n:3, title:"Sell out the club tickets", sub:"the crossover / after-dinner club", items:[
+   ["p3a","Open the SEPARATE club-ticket link (unique QR each)","lock"],
+   ["p3b","Push ~100 extra crossover guests","go"],
+   ["p3c","Nominated guests get their courier/QR codes + badge here","go"],
+ ]},
+ {n:4, title:"Final run-up", sub:"the week before", items:[
+   ["p4a","Promo / aftermovie drops; countdowns hit milestones","go"],
+   ["p4b","Push drink pre-orders (cheaper now, skip the line)","go"],
+   ["p4c","Chef's-table decision (adds ~8–16), close to the day","go"],
+   ["p4d","Lock the door/scan lists (diner + club + nominee QRs)","lock"],
+ ]},
+ {n:5, title:"Event night", sub:"door + during", items:[
+   ["p5a","Door: scan unique QRs → green welcome / red already-in/not-found + check-in list","lock"],
+   ["p5b","Dinner → crossover: beds lift / tables transform to VIP","go"],
+   ["p5c","Bar: pre-ordered bottles/credit ready per guest","lock"],
+   ["p5d","Min-spend tracked per club table","go"],
+   ["p5e","Photographer / livestream capture","idea"],
+ ]},
+ {n:6, title:"After", sub:"close the loop", items:[
+   ["p6a","Settle deposits; reconcile unspent credit","go"],
+   ["p6b","Everyone (came / bought / invited-by-whom) → curated database → next event","lock"],
+ ]},
+];
+const DECISIONS = [
+ "Price ladder — every € figure in the recording was garbled; set the real diner / VIP / club / min-spend numbers (relisten AC15).",
+ "Venue commission split on bar/bottles — Johnny to discuss with the venue, then build that part.",
+ "Table auction/bidding on a club table — yes / no?",
+ "Mandatory login for club buyers — yes / no? (leaning no)",
+ "Curated-spot builder — Johnny curates his own contacts, reserves spots, calls them (\"I reserved a spot for you\"). In the todos; build later.",
+];
+const CONTENT = [
+ "Promo / aftermovie (MOSE.ART works projected on walls + spoken word, dark→light \"tunnel\" reveal, dynamic camera).",
+ "Event story / theme — Johnny writes it (pulling from his other account).",
+ "MOSE.ART bottle name-stickers · merch-for-a-card bundles (optional).",
+];
+
+// ---- render ----
+const store = JSON.parse(localStorage.getItem('mose_backend_todo')||'{}');
+const save = ()=>localStorage.setItem('mose_backend_todo',JSON.stringify(store));
+const TAG={lock:['LOCKED','t-lock'],go:['GOING','t-go'],idea:['IDEA','t-idea']};
+function render(){
+  const host=document.getElementById('phases'); host.innerHTML='';
+  let total=0, done=0;
+  PHASES.forEach(ph=>{
+    let dn=0; ph.items.forEach(it=>{total++; if(store[it[0]]){done++;dn++;}});
+    const open = store['open_'+ph.n] ?? (ph.n<=2);
+    const el=document.createElement('div'); el.className='phase';
+    el.innerHTML=`<div class="ph-head" data-ph="${ph.n}">
+        <div class="no">${ph.n}</div>
+        <h3>${ph.title}<small>${ph.sub}</small></h3>
+        ${ph.gate?'<span class="gate">GATE</span>':''}
+        <span class="cnt">${dn}/${ph.items.length}</span></div>
+      <div class="items ${open?'open':''}" id="items-${ph.n}">
+        ${ph.items.map(it=>{const t=TAG[it[2]];const c=store[it[0]]?'done':'';
+          return `<div class="item ${c}"><input type="checkbox" data-id="${it[0]}" ${store[it[0]]?'checked':''}/>
+            <label data-id="${it[0]}">${it[1]}<span class="tag ${t[1]}">${t[0]}</span></label></div>`}).join('')}
+      </div>`;
+    host.appendChild(el);
+  });
+  document.querySelectorAll('.ph-head').forEach(h=>h.onclick=e=>{
+    if(e.target.type==='checkbox')return;
+    const n=h.dataset.ph; store['open_'+n]=!(store['open_'+n] ?? (n<=2)); save(); render();});
+  document.querySelectorAll('.item input').forEach(cb=>cb.onchange=()=>{store[cb.dataset.id]=cb.checked;save();render();});
+  document.querySelectorAll('.item label').forEach(l=>l.onclick=()=>{store[l.dataset.id]=!store[l.dataset.id];save();render();});
+  document.getElementById('pct').textContent=`${done} / ${total} done`;
+  document.getElementById('barfill').style.width=(total?done/total*100:0)+'%';
+  document.getElementById('decisions').innerHTML=DECISIONS.map(d=>`<li>${d}</li>`).join('');
+  document.getElementById('content').innerHTML=CONTENT.map(d=>`<li>${d}</li>`).join('');
+}
+render();
+document.getElementById('reset').onclick=()=>{if(confirm('Clear all checkmarks?')){localStorage.removeItem('mose_backend_todo');location.reload();}};
+
+// ---- clock + today ----
+function pad(n){return String(n).padStart(2,'0');}
+function tick(){
+  const now=new Date(); let diff=EVENT-now;
+  const past=diff<0; diff=Math.abs(diff);
+  const d=Math.floor(diff/864e5), h=Math.floor(diff/36e5)%24, m=Math.floor(diff/6e4)%60, s=Math.floor(diff/1e3)%60;
+  document.getElementById('d').textContent=d;
+  document.getElementById('h').textContent=pad(h);
+  document.getElementById('m').textContent=pad(m);
+  document.getElementById('s').textContent=pad(s);
+  document.getElementById('cl-label')&&0;
+  // today line + phase focus
+  const wk=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()];
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+  let focus;
+  if(past) focus="The night has arrived / passed — run the door + after steps.";
+  else if(d>60) focus="<b>Focus now:</b> Phase 0 — build the system (the gate). Nothing sells until it's live.";
+  else if(d>35) focus="<b>Focus now:</b> Phase 1 — start the inner circle (~300 Johnny knows).";
+  else if(d>20) focus="<b>Focus now:</b> Phase 2 — widen to ~500 to hit 120 diners.";
+  else if(d>8)  focus="<b>Focus now:</b> Phase 3 — sell out the club tickets (unique QR).";
+  else focus="<b>Focus now:</b> Phase 4/5 — run-up + event night. Lock the scan lists.";
+  document.getElementById('today').innerHTML=`Today is <b>${wk} ${now.getDate()} ${mo} ${now.getFullYear()}</b>. ${focus}`;
+}
+tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>
