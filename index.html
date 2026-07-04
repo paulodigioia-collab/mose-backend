@@ -119,17 +119,22 @@ const PHASES = [
    ["p0e","Separate club-ticket link, unique QR per ticket","lock"],
    ["p0f","Countdown timers wired (project + per milestone)","lock"],
    ["p0g","Floor plan + table numbers finalized (other chat)","lock"],
+   ["p0h","Inventory lock: no double-booking a table across dinner+club; club tables open only after dinner's 24h first-option","lock"],
+   ["p0i","Payment + booking TEST pass (~1 full day) before go-live","lock"],
  ]},
- {n:"0.5", title:"Show it to 2–8 people for feedback", sub:"ratify BEFORE selling — Ona first, then the ambassadors", gate:true, items:[
-   ["gate1","Reservation system built → SHOW it to the first 2–8 people (Ona + ambassadors) for feedback","lock"],
-   ["gate2","Collect their feedback + fix what they flag BEFORE opening it wider","lock"],
-   ["gate3","Only once they're happy → start selling to the inner circle","go"],
+ {n:"0.5", title:"Ratify: Ona → 8 ambassadors → public", sub:"3-stage approval BEFORE any public selling (call 6)", gate:true, items:[
+   ["gate1","Built → test with Ona ALONE first (~80% signal: does she agree with the protocol?)","lock"],
+   ["gate2","Then send to the 8 ambassadors for approval + comments","lock"],
+   ["gate3","Fix their feedback → ONLY THEN go public / start selling","lock"],
+   ["gate4","Nightly while building: ship the draft, get feedback, integrate it","go"],
  ]},
  {n:1, title:"Sell to the inner circle", sub:"~600 close friends · ~300 Johnny knows personally", items:[
    ["p1a","Send the easy reserve/order link to the ~300 Johnny knows","lock"],
    ["p1b","They get first pick of tables/seats","go"],
    ["p1c","Whole-night-VIP buyers unlock the nominate-2 perk","go"],
    ["p1d","Capture who reserved + who pre-ordered drinks","lock"],
+   ["p1e","The first TWO shows can run WITHOUT the app (couples) → then app + referrals scale it","go"],
+   ["p1f","Dinner guests get a 24h FIRST OPTION to extend to the club before club tables open","lock"],
  ]},
  {n:2, title:"Sell to the wider circle", sub:"goal: hit 120 diners", items:[
    ["p2a","Invite ~500 more (ambassadors / hotels / referrals) to net 120 diners","go"],
