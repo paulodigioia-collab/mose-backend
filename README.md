@@ -1,8 +1,8 @@
 # MOSE.ART — Backend Ops Board
 > A private, live **ticking clock + master to-do** board for the MOSE.ART dinner-experience build. Personal ops only — **not for investors**.
 
-**▶ Live board:** __VERCEL_URL__  · open on your phone; the clock counts down to the first night.
-**▶ Source (this repo):** __REPO_URL__  · so your Claude can edit / upgrade it.
+**▶ Live board:** https://mose-backend.vercel.app  · open on your phone; the clock counts down to the first night.
+**▶ Source (this repo):** https://github.com/paulodigioia-collab/mose-backend  · so your Claude can edit / upgrade it.
 
 ---
 
